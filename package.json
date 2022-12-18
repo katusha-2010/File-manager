@@ -1,0 +1,21 @@
+{
+  "name": "file-manager",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/katusha-2010/File-manager.git"
+  },
+  "author": "Tochilina_Ekaterina",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/katusha-2010/File-manager/issues"
+  },
+  "homepage": "https://github.com/katusha-2010/File-manager#readme"
+}
