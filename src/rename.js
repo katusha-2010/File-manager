@@ -2,9 +2,9 @@ import * as path from "path";
 import { rename as renameAPI } from "fs/promises";
 import { isExistPath } from "./helper.js";
 
-export const rename = async (pathToFile, pathToRenamedFile) => {
-  // const pathToFile = path.join(__dirname, "files", "wrongFilename.txt");
-  // const pathToRenamedFile = path.join(__dirname, "files", "properFilename.md");
+export const rename = async ([pathToFile, renamedFile]) => {
+  const directory = path.parse(pathToFile).dir;
+  const pathToRenamedFile = path.resolve(directory, renamedFile);
 
   try {
     if (

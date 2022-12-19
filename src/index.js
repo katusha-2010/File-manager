@@ -6,6 +6,8 @@ import {
   sortFunc,
   getObjectForList,
   getUserName,
+  getArrArguments,
+  throwErrorAboutPath,
 } from "./helper.js";
 import os from "os";
 import * as path from "path";
@@ -19,6 +21,9 @@ import { move } from "./move.js";
 import { deleteFile } from "./delete.js";
 import { getInfoFromOs } from "./os.js";
 import { hashFile } from "./hash.js";
+import { compress } from "./compress.js";
+import { decompress } from "./decompress.js";
+import { showList } from "./ls.js";
 
 let userName = "";
 let userStartingDir = os.homedir();
@@ -37,6 +42,7 @@ stdin.on("data", async (data) => {
     const objConsoleCommand = isExistCommand(body);
     body = objConsoleCommand ? objConsoleCommand.command : false;
     let argsAfterCommand = objConsoleCommand.argsAfterCommand;
+
     switch (body) {
       case ".exit":
         sayBye(userName);
@@ -48,11 +54,7 @@ stdin.on("data", async (data) => {
         await goToDirectory(argsAfterCommand);
         break;
       case "ls":
-        const content = await readdir(process.cwd());
-        const promise1 = await Promise.all(content.map(getObjectForList));
-        console.table(
-          await Promise.all(promise1.sort((a, b) => sortFunc(a, b)))
-        );
+        await showList();
         break;
       case "cat":
         await read(path.resolve(argsAfterCommand));
@@ -61,26 +63,19 @@ stdin.on("data", async (data) => {
         await create(path.resolve(argsAfterCommand));
         break;
       case "rn":
-        const pathToFile = path.resolve(argsAfterCommand.split(" ")[0]);
-        const pathToDirectory = path.dirname(pathToFile);
-        const pathToRenamedFile = path.resolve(
-          pathToDirectory,
-          argsAfterCommand.split(" ")[1]
-        );
-        await rename(pathToFile, pathToRenamedFile);
+        const arrArgsRename = getArrArguments(argsAfterCommand);
+        throwErrorAboutPath(arrArgsRename);
+        await rename([arrArgsRename[0], arrArgsRename[1]]);
         break;
       case "cp":
-        const reg = /("|')(\\.|[^("|')\\])*("|')/g;
-        const arrArgs = argsAfterCommand.match(reg);
-        const arrArgs2 = arrArgs.map((el) => el.slice(1, -1));
-        if (arrArgs2.length !== 2) {
-          throw new Error("path should be string");
-        } else {
-          await copy([arrArgs2[0], arrArgs2[1]]);
-        }
+        const arrArgsCopy = getArrArguments(argsAfterCommand);
+        throwErrorAboutPath(arrArgsCopy);
+        await copy([arrArgsCopy[0], arrArgsCopy[1]]);
         break;
       case "mv":
-        await move(argsAfterCommand);
+        const arrArgsMove = getArrArguments(argsAfterCommand);
+        throwErrorAboutPath(arrArgsMove);
+        await move([arrArgsMove[0], arrArgsMove[1]]);
         break;
       case "rm":
         await deleteFile(argsAfterCommand);
@@ -91,14 +86,23 @@ stdin.on("data", async (data) => {
       case "hash":
         await hashFile(argsAfterCommand);
         break;
+      case "compress":
+        const arrArgsCompress = getArrArguments(argsAfterCommand);
+        throwErrorAboutPath(arrArgsCompress);
+        await compress([arrArgsCompress[0], arrArgsCompress[1]]);
+        break;
+      case "decompress":
+        const arrArgsDecompress = getArrArguments(argsAfterCommand);
+        throwErrorAboutPath(arrArgsDecompress);
+        await decompress([arrArgsDecompress[0], arrArgsDecompress[1]]);
+        break;
       default:
         stdout.write("Invalid input");
     }
   } catch (error) {
     stdout.write("Invalid input");
   }
-
-  stdout.write(`\nYou are currently in ${process.cwd()}\n`);
+  console.log(`\nYou are currently in ${process.cwd()}\n`);
 });
 
 process.on("SIGINT", () => {

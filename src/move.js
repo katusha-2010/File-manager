@@ -1,8 +1,8 @@
 import { copy } from "./copy.js";
 
-export async function move(argsAfterCommand) {
+export async function move(arr) {
   try {
-    await copy(argsAfterCommand, true);
+    await copy(arr, true);
   } catch (error) {
     console.log("Operation failed");
   }
